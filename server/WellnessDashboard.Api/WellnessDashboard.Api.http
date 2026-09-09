@@ -1,0 +1,6 @@
+@WellnessDashboard.Api_HostAddress = http://localhost:5250
+
+GET {{WellnessDashboard.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
