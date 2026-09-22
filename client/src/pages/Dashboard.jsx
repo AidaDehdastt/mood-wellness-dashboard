@@ -41,18 +41,18 @@ export default function Dashboard() {
       </Box>
 
       <Grid container spacing={2} mb={3}>
-        <Grid item xs={6} sm={3}>
-          <Paper sx={{ p: 2, textAlign: "center" }}>
-            <Typography variant="h6">{avgMood}</Typography>
-            <Typography variant="body2">Snitt humör</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={6} sm={3}>
-          <Paper sx={{ p: 2, textAlign: "center" }}>
-            <Typography variant="h6">{avgSleep}h</Typography>
-            <Typography variant="body2">Snitt sömn</Typography>
-          </Paper>
-        </Grid>
+       <Grid size={{ xs: 6, sm: 3 }}>
+        <Paper sx={{ p: 2, textAlign: "center" }}>
+          <Typography variant="h6">{avgMood}</Typography>
+          <Typography variant="body2">Snitt humör</Typography>
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 6, sm: 3 }}>
+         <Paper sx={{ p: 2, textAlign: "center" }}>
+           <Typography variant="h6">{avgSleep}h</Typography>
+           <Typography variant="body2">Snitt sömn</Typography>
+         </Paper>
+      </Grid>
       </Grid>
 
       <Typography variant="h6" mb={1}>Humör & sömn över tid</Typography>
