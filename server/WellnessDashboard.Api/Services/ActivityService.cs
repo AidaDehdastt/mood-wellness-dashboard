@@ -16,13 +16,16 @@ public class ActivityService
         return activity;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<(bool success, string? error)> DeleteAsync(int id)
     {
         var activity = await _context.Activities.FindAsync(id);
-        if (activity is null) return false;
+        if (activity is null) return (false, "not_found");
+
+        var isInUse = await _context.ActivityLogs.AnyAsync(al => al.ActivityId == id);
+        if (isInUse) return (false, "in_use");
 
         _context.Activities.Remove(activity);
         await _context.SaveChangesAsync();
-        return true;
+        return (true, null);
     }
 }

@@ -23,7 +23,9 @@ public class ActivitiesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var ok = await _service.DeleteAsync(id);
-        return ok ? NoContent() : NotFound();
+        var (success, error) = await _service.DeleteAsync(id);
+        if (success) return NoContent();
+        if (error == "in_use") return BadRequest("Aktiviteten används i sparade loggar och kan inte tas bort.");
+        return NotFound();
     }
 }
