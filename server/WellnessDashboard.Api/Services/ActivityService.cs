@@ -15,4 +15,14 @@ public class ActivityService
         await _context.SaveChangesAsync();
         return activity;
     }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var activity = await _context.Activities.FindAsync(id);
+        if (activity is null) return false;
+
+        _context.Activities.Remove(activity);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

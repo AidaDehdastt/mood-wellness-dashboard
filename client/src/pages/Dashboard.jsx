@@ -28,6 +28,19 @@ export default function Dashboard() {
   const avgMood = logs.length ? (logs.reduce((s, l) => s + l.moodScore, 0) / logs.length).toFixed(1) : "-";
   const avgSleep = logs.length ? (logs.reduce((s, l) => s + l.sleepHours, 0) / logs.length).toFixed(1) : "-";
 
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  const weeklyActivities = logs
+    .filter((l) => new Date(l.date) >= oneWeekAgo)
+    .flatMap((l) =>
+      (l.activityLogs || []).map((al) => ({
+        date: new Date(l.date).toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" }),
+        name: al.activity?.name ?? "Okänd",
+        duration: al.durationMinutes,
+      }))
+    );
+
   return (
     <Box sx={{ p: 4 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
@@ -41,18 +54,18 @@ export default function Dashboard() {
       </Box>
 
       <Grid container spacing={2} mb={3}>
-       <Grid size={{ xs: 6, sm: 3 }}>
-        <Paper sx={{ p: 2, textAlign: "center" }}>
-          <Typography variant="h6">{avgMood}</Typography>
-          <Typography variant="body2">Snitt humör</Typography>
-        </Paper>
-      </Grid>
-      <Grid size={{ xs: 6, sm: 3 }}>
-         <Paper sx={{ p: 2, textAlign: "center" }}>
-           <Typography variant="h6">{avgSleep}h</Typography>
-           <Typography variant="body2">Snitt sömn</Typography>
-         </Paper>
-      </Grid>
+        <Grid size={{ xs: 6, sm: 3 }}>
+          <Paper sx={{ p: 2, textAlign: "center" }}>
+            <Typography variant="h6">{avgMood}</Typography>
+            <Typography variant="body2">Snitt humör</Typography>
+          </Paper>
+        </Grid>
+        <Grid size={{ xs: 6, sm: 3 }}>
+          <Paper sx={{ p: 2, textAlign: "center" }}>
+            <Typography variant="h6">{avgSleep}h</Typography>
+            <Typography variant="body2">Snitt sömn</Typography>
+          </Paper>
+        </Grid>
       </Grid>
 
       <Typography variant="h6" mb={1}>Humör & sömn över tid</Typography>
@@ -77,6 +90,20 @@ export default function Dashboard() {
           <Scatter data={scatterData} fill="#8884d8" />
         </ScatterChart>
       </ResponsiveContainer>
+
+      <Typography variant="h6" mt={4} mb={1}>Aktiviteter senaste 7 dagarna</Typography>
+      {weeklyActivities.length === 0 ? (
+        <Typography color="text.secondary">Inga loggade aktiviteter denna vecka.</Typography>
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {weeklyActivities.map((a, i) => (
+            <Paper key={i} sx={{ p: 1.5, display: "flex", justifyContent: "space-between" }}>
+              <Typography>{a.name}</Typography>
+              <Typography color="text.secondary">{a.duration} min · {a.date}</Typography>
+            </Paper>
+          ))}
+        </Box>
+      )}
     </Box>
   );
 }

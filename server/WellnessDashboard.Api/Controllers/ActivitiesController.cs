@@ -19,4 +19,11 @@ public class ActivitiesController : ControllerBase
         var created = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetAll), new { id = created.Id }, created);
     }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var ok = await _service.DeleteAsync(id);
+        return ok ? NoContent() : NotFound();
+    }
 }

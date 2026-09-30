@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Slider, TextField, Button, MenuItem, Select, Chip } from "@mui/material";
 import { createDailyLog } from "../api/dailyLogs";
-import { getActivities } from "../api/activities";
+import { getActivities, createActivity, deleteActivity } from "../api/activities";
 
 export default function LogEntry() {
   const [mood, setMood] = useState(5);
@@ -13,6 +13,8 @@ export default function LogEntry() {
   const [selectedActivity, setSelectedActivity] = useState("");
   const [duration, setDuration] = useState(30);
   const [loggedActivities, setLoggedActivities] = useState([]);
+  const [newActivityName, setNewActivityName] = useState("");
+  const [newActivityCategory, setNewActivityCategory] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,6 +25,23 @@ export default function LogEntry() {
     if (!selectedActivity) return;
     setLoggedActivities([...loggedActivities, { activityId: selectedActivity, durationMinutes: duration }]);
     setSelectedActivity("");
+  };
+
+  const removeActivity = (index) => {
+    setLoggedActivities(loggedActivities.filter((_, i) => i !== index));
+  };
+
+  const handleAddNewActivity = async () => {
+    if (!newActivityName || !newActivityCategory) return;
+    const res = await createActivity({ name: newActivityName, category: newActivityCategory });
+    setActivities([...activities, res.data]);
+    setNewActivityName("");
+    setNewActivityCategory("");
+  };
+
+  const handleDeleteActivity = async (id) => {
+    await deleteActivity(id);
+    setActivities(activities.filter((a) => a.id !== id));
   };
 
   const handleSubmit = async (e) => {
@@ -67,13 +86,48 @@ export default function LogEntry() {
           type="number" label="Minuter" value={duration}
           onChange={(e) => setDuration(Number(e.target.value))} sx={{ width: 100 }}
         />
-        <Button onClick={addActivity} variant="outlined">Lägg till</Button>
+        <Button onClick={addActivity} type="button" variant="outlined">Lägg till</Button>
       </Box>
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
         {loggedActivities.map((a, i) => {
           const activity = activities.find((x) => x.id === a.activityId);
-          return <Chip key={i} label={`${activity?.name} – ${a.durationMinutes} min`} />;
+          return (
+            <Chip
+              key={i}
+              label={`${activity?.name} – ${a.durationMinutes} min`}
+              onDelete={() => removeActivity(i)}
+            />
+          );
         })}
+      </Box>
+
+      <Typography sx={{ mt: 3 }} variant="body2" color="text.secondary">
+        Hittar du inte aktiviteten? Lägg till en ny:
+      </Typography>
+      <Box sx={{ display: "flex", gap: 1, alignItems: "center", mt: 1 }}>
+        <TextField
+          label="Namn" size="small" value={newActivityName}
+          onChange={(e) => setNewActivityName(e.target.value)}
+        />
+        <TextField
+          label="Kategori" size="small" value={newActivityCategory}
+          onChange={(e) => setNewActivityCategory(e.target.value)}
+        />
+        <Button onClick={handleAddNewActivity} type="button" variant="text">Skapa</Button>
+      </Box>
+
+      <Typography sx={{ mt: 3 }} variant="body2" color="text.secondary">
+        Hantera aktivitetstyper:
+      </Typography>
+      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
+        {activities.map((a) => (
+          <Chip
+            key={a.id}
+            label={a.name}
+            onDelete={() => handleDeleteActivity(a.id)}
+            variant="outlined"
+          />
+        ))}
       </Box>
 
       <Button type="submit" variant="contained" fullWidth sx={{ mt: 3 }}>
