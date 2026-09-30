@@ -1,0 +1,5 @@
+<step title="Incoming Request" date="2026-09-30T08:33:26.438" instance="4df906" url="/logstream" method="GET" type="request" pid="836,1,5" Host="wellness-api-aida.scm.azurewebsites.net" User-Agent="AZURECLI/2.90.0 (HOMEBREW)" Accept-Encoding="identity" Authorization="Bea..." x-ms-client-request-id="97d9c858-bca9-11f1-afd9-ee4996027194" X-ARR-LOG-ID="97d9c858-bca9-11f1-afd9-ee4996027194" CLIENT-IP="83.190.121.225:50786" X-SITE-DEPLOYMENT-ID="wellness-api-aida" WAS-DEFAULT-HOSTNAME="wellness-api-aida.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/logstream" X-Client-IP="83.190.121.225" X-Client-Port="50786" >
+  <step title="LogStreamHandlerMiddleware.Invoke" date="2026-09-30T08:33:26.502" /><!-- duration: 78ms -->
+  <step title="Error occurred" date="2026-09-30T08:37:26.605" type="error" text="LogStreamManager: ProcessRequest end" /><!-- duration: 30ms -->
+  <step title="Outgoing response" date="2026-09-30T08:37:26.703" type="response" statusCode="200" statusText="OK" /><!-- duration: 20ms -->
+</step><!-- duration: 240304ms -->
