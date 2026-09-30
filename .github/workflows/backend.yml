@@ -1,0 +1,36 @@
+name: Deploy Backend to Azure App Service
+
+on:
+  push:
+    branches: [main]
+    paths: ["server/**"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build and publish
+        run: |
+          cd server/WellnessDashboard.Api
+          dotnet publish -c Release -o ./publish
+
+      - name: Zip published app
+        run: |
+          cd server/WellnessDashboard.Api/publish
+          zip -r ../../../publish.zip .
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Web App
+        run: |
+          az webapp deploy --resource-group wellness-dashboard-rg --name wellness-api-aida --src-path publish.zip --type zip
