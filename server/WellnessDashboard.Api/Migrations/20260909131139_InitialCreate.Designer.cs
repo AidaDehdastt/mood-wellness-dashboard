@@ -14,7 +14,6 @@ namespace WellnessDashboard.Api.Migrations
     [Migration("20260909131139_InitialCreate")]
     partial class InitialCreate
     {
-        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

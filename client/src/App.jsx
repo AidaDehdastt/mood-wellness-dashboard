@@ -29,6 +29,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/log/:id"
+            element={
+              <ProtectedRoute>
+                <LogEntry />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </BrowserRouter>

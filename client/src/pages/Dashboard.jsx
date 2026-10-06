@@ -5,7 +5,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ScatterChart, Scatter,
 } from "recharts";
-import { getDailyLogs } from "../api/dailyLogs";
+import { getDailyLogs, deleteDailyLog } from "../api/dailyLogs";
 import { useAuth } from "../context/AuthContext";
 
 export default function Dashboard() {
@@ -16,6 +16,16 @@ export default function Dashboard() {
   useEffect(() => {
     getDailyLogs().then((res) => setLogs(res.data));
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Vill du ta bort den här loggen?")) return;
+    try {
+      await deleteDailyLog(id);
+      setLogs(logs.filter((l) => l.id !== id));
+    } catch {
+      alert("Kunde inte ta bort loggen.");
+    }
+  };
 
   const chartData = logs.map((l) => ({
     date: new Date(l.date).toLocaleDateString("sv-SE"),
@@ -100,6 +110,28 @@ export default function Dashboard() {
             <Paper key={i} sx={{ p: 1.5, display: "flex", justifyContent: "space-between" }}>
               <Typography>{a.name}</Typography>
               <Typography color="text.secondary">{a.duration} min · {a.date}</Typography>
+            </Paper>
+          ))}
+        </Box>
+      )}
+
+      <Typography variant="h6" mt={4} mb={1}>Dina loggar</Typography>
+      {logs.length === 0 ? (
+        <Typography color="text.secondary">Inga loggar än.</Typography>
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {[...logs].reverse().map((l) => (
+            <Paper key={l.id} sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Box>
+                <Typography>{new Date(l.date).toLocaleDateString("sv-SE")}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Humör {l.moodScore} · Stress {l.stressLevel} · Sömn {l.sleepHours}h
+                </Typography>
+              </Box>
+              <Box>
+                <Button size="small" onClick={() => navigate(`/log/${l.id}`)}>Redigera</Button>
+                <Button size="small" color="error" onClick={() => handleDelete(l.id)}>Ta bort</Button>
+              </Box>
             </Paper>
           ))}
         </Box>

@@ -1,25 +1,50 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Box, Typography, Slider, TextField, Button, MenuItem, Select, Chip } from "@mui/material";
-import { createDailyLog } from "../api/dailyLogs";
+import { useNavigate, useParams } from "react-router-dom";
+import { Box, Typography, Slider, TextField, Button, MenuItem, Select, Chip, Alert } from "@mui/material";
+import { createDailyLog, getDailyLog, updateDailyLog } from "../api/dailyLogs";
 import { getActivities, createActivity, deleteActivity } from "../api/activities";
 
 export default function LogEntry() {
+  const { id } = useParams();
+  const isEdit = Boolean(id);
+
   const [mood, setMood] = useState(5);
   const [stress, setStress] = useState(5);
   const [sleep, setSleep] = useState(7);
   const [notes, setNotes] = useState("");
+  const [logDate, setLogDate] = useState(null);
   const [activities, setActivities] = useState([]);
   const [selectedActivity, setSelectedActivity] = useState("");
   const [duration, setDuration] = useState(30);
   const [loggedActivities, setLoggedActivities] = useState([]);
   const [newActivityName, setNewActivityName] = useState("");
   const [newActivityCategory, setNewActivityCategory] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     getActivities().then((res) => setActivities(res.data));
   }, []);
+
+  useEffect(() => {
+    if (!isEdit) return;
+    getDailyLog(id)
+      .then((res) => {
+        const l = res.data;
+        setMood(l.moodScore);
+        setStress(l.stressLevel);
+        setSleep(l.sleepHours);
+        setNotes(l.notes ?? "");
+        setLogDate(l.date);
+        setLoggedActivities(
+          (l.activityLogs || []).map((al) => ({
+            activityId: al.activityId,
+            durationMinutes: al.durationMinutes,
+          }))
+        );
+      })
+      .catch(() => setError("Kunde inte hämta loggen."));
+  }, [id, isEdit]);
 
   const addActivity = () => {
     if (!selectedActivity) return;
@@ -33,33 +58,57 @@ export default function LogEntry() {
 
   const handleAddNewActivity = async () => {
     if (!newActivityName || !newActivityCategory) return;
-    const res = await createActivity({ name: newActivityName, category: newActivityCategory });
-    setActivities([...activities, res.data]);
-    setNewActivityName("");
-    setNewActivityCategory("");
+    setError("");
+    try {
+      const res = await createActivity({ name: newActivityName, category: newActivityCategory });
+      setActivities([...activities, res.data]);
+      setNewActivityName("");
+      setNewActivityCategory("");
+    } catch {
+      setError("Kunde inte skapa aktiviteten.");
+    }
   };
 
-  const handleDeleteActivity = async (id) => {
-    await deleteActivity(id);
-    setActivities(activities.filter((a) => a.id !== id));
+  const handleDeleteActivity = async (activityId) => {
+    setError("");
+    try {
+      await deleteActivity(activityId);
+      setActivities(activities.filter((a) => a.id !== activityId));
+    } catch (err) {
+      setError(
+        err.response?.data ?? "Kunde inte ta bort aktiviteten."
+      );
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await createDailyLog({
-      date: new Date().toISOString(),
+    setError("");
+    const payload = {
+      date: isEdit ? logDate : new Date().toISOString(),
       moodScore: mood,
       stressLevel: stress,
       sleepHours: sleep,
       notes,
       activities: loggedActivities,
-    });
-    navigate("/dashboard");
+    };
+    try {
+      if (isEdit) {
+        await updateDailyLog(id, payload);
+      } else {
+        await createDailyLog(payload);
+      }
+      navigate("/dashboard");
+    } catch {
+      setError("Kunde inte spara loggen.");
+    }
   };
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 500, mx: "auto", mt: 6 }}>
-      <Typography variant="h5" mb={3}>Logga dagen</Typography>
+      <Typography variant="h5" mb={3}>{isEdit ? "Redigera logg" : "Logga dagen"}</Typography>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{String(error)}</Alert>}
 
       <Typography>Humör: {mood}/10</Typography>
       <Slider value={mood} onChange={(e, v) => setMood(v)} min={1} max={10} />
@@ -75,7 +124,7 @@ export default function LogEntry() {
         value={notes} onChange={(e) => setNotes(e.target.value)}
       />
 
-      <Typography sx={{ mt: 3 }}>Aktiviteter idag</Typography>
+      <Typography sx={{ mt: 3 }}>Aktiviteter</Typography>
       <Box sx={{ display: "flex", gap: 1, alignItems: "center", mt: 1 }}>
         <Select value={selectedActivity} onChange={(e) => setSelectedActivity(e.target.value)} sx={{ minWidth: 150 }}>
           {activities.map((a) => (
@@ -130,9 +179,14 @@ export default function LogEntry() {
         ))}
       </Box>
 
-      <Button type="submit" variant="contained" fullWidth sx={{ mt: 3 }}>
-        Spara logg
-      </Button>
+      <Box sx={{ display: "flex", gap: 1, mt: 3 }}>
+        <Button type="button" variant="outlined" onClick={() => navigate("/dashboard")}>
+          Avbryt
+        </Button>
+        <Button type="submit" variant="contained" fullWidth>
+          {isEdit ? "Spara ändringar" : "Spara logg"}
+        </Button>
+      </Box>
     </Box>
   );
 }
