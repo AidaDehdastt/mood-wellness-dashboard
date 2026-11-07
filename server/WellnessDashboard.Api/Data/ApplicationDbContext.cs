@@ -28,5 +28,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(dl => dl.User)
             .WithMany(u => u.DailyLogs)
             .HasForeignKey(dl => dl.UserId);
+
+        // Insikter och loggar filtreras alltid på användare och sorteras/avgränsas på datum.
+        builder.Entity<DailyLog>()
+            .HasIndex(dl => new { dl.UserId, dl.Date });
     }
 }
