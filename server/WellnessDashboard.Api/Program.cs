@@ -52,6 +52,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<DailyLogService>();
 builder.Services.AddScoped<ActivityService>();
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<InsightsService>();
 
 var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
 builder.Services.AddCors(options =>
