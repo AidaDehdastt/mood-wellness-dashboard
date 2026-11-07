@@ -28,5 +28,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(dl => dl.User)
             .WithMany(u => u.DailyLogs)
             .HasForeignKey(dl => dl.UserId);
+
+        builder.Entity<Activity>()
+            .HasOne(a => a.User)
+            .WithMany()
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+    
     }
 }
