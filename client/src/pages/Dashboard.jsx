@@ -79,7 +79,7 @@ export default function Dashboard() {
         </Grid>
       </Grid>
 
-      <InsightsCard />
+      <InsightsCard refreshKey={logs.length} />
 
       <Typography variant="h6" mb={1}>Humör & sömn över tid</Typography>
       <ResponsiveContainer width="100%" height={300}>
