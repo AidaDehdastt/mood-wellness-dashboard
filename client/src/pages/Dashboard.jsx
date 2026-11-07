@@ -7,7 +7,6 @@ import {
 } from "recharts";
 import { getDailyLogs, deleteDailyLog } from "../api/dailyLogs";
 import { useAuth } from "../context/AuthContext";
-import InsightsCard from "../components/InsightsCard";
 
 export default function Dashboard() {
   const [logs, setLogs] = useState([]);
@@ -78,8 +77,6 @@ export default function Dashboard() {
           </Paper>
         </Grid>
       </Grid>
-
-      <InsightsCard refreshKey={logs.length} />
 
       <Typography variant="h6" mb={1}>Humör & sömn över tid</Typography>
       <ResponsiveContainer width="100%" height={300}>
