@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +9,7 @@ public class DailyLogsController : ControllerBase
     private readonly DailyLogService _service;
     public DailyLogsController(DailyLogService service) => _service = service;
 
-    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+    private string UserId => User.GetUserId();
 
     [HttpGet]
     public async Task<IActionResult> GetAll() => Ok(await _service.GetForUserAsync(UserId));
