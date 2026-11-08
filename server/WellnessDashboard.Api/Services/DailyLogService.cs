@@ -16,6 +16,15 @@ public class DailyLogService
         await _context.DailyLogs
             .Include(d => d.ActivityLogs).ThenInclude(al => al.Activity)
             .FirstOrDefaultAsync(d => d.Id == id && d.UserId == userId);
+    
+    // Kollar att alla aktiviteter finns och tillhör användaren (eller är standardaktiviteter).
+    public async Task<bool> ActivitiesAreAllowedAsync(string userId, CreateDailyLogDto dto)
+    {
+        var ids = dto.Activities.Select(a => a.ActivityId).Distinct().ToList();
+        var allowedCount = await _context.Activities
+            .CountAsync(a => ids.Contains(a.Id) && (a.UserId == userId || a.UserId == null));
+        return allowedCount == ids.Count;
+    }
 
     public async Task<DailyLog> CreateAsync(string userId, CreateDailyLogDto dto)
     {

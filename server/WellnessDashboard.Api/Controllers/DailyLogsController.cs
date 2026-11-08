@@ -26,6 +26,8 @@ public class DailyLogsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateDailyLogDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!await _service.ActivitiesAreAllowedAsync(UserId, dto))
+            return BadRequest("En eller flera aktiviteter finns inte eller tillhör inte dig.");
         var created = await _service.CreateAsync(UserId, dto);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
@@ -34,6 +36,8 @@ public class DailyLogsController : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] CreateDailyLogDto dto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!await _service.ActivitiesAreAllowedAsync(UserId, dto))
+            return BadRequest("En eller flera aktiviteter finns inte eller tillhör inte dig.");        
         var ok = await _service.UpdateAsync(UserId, id, dto);
         return ok ? NoContent() : NotFound();
     }
