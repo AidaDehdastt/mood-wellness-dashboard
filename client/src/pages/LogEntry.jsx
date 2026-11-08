@@ -169,14 +169,14 @@ export default function LogEntry() {
         Hantera aktivitetstyper:
       </Typography>
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
-        {activities.map((a) => (
-          <Chip
-            key={a.id}
-            label={a.name}
-            onDelete={() => handleDeleteActivity(a.id)}
-            variant="outlined"
-          />
-        ))}
+          {activities.filter((a) => a.userId).map((a) => (
+             <Chip
+                 key={a.id}
+                 label={a.name}
+                 onDelete={() => handleDeleteActivity(a.id)}
+                 variant="outlined"
+             />
+          ))}
       </Box>
 
       <Box sx={{ display: "flex", gap: 1, mt: 3 }}>
